@@ -1,0 +1,5 @@
+name = Copy Blocks
+description = Allows adding layout blocks which are actually copies of regions or other blocks.
+package = Blocks
+type = module
+backdrop = 1.x

@@ -1,0 +1,34 @@
+<?php
+/**
+ * @file
+ * Copy Blocksmodule.
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function copy_blocks_block_info() {
+  $blocks = array();
+  $blocks['region_copy'] = array(
+    'info' => t('Region copy block'),
+    'description' => t('Provide a block which displays the blocks from a chosen region.'),
+    'class' => 'BlockRegionCopy',
+  );
+  $blocks['block_copy'] = array(
+    'info' => t('Block copy block'),
+    'description' => t('Creates a copy of an existing block.'),
+    'class' => 'BlockCopy',
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function copy_blocks_autoload_info() {
+  return array(
+    'BlockRegionCopy' => 'block.region_copy.inc',
+    'BlockCopy' => 'block.block_copy.inc',
+  );
+}
