@@ -44,7 +44,7 @@ class BlockRegionCopy extends Block {
           $blocks[] = $block->delta != 'main' ? $this->renderBlock($layout, $block) : '';
         }
       }
-      $rendered_region = $this->renderRegion($layout, $region_id, $blocks);
+      $rendered_region = $this->renderRegion($layout, $region, $blocks);
       return $rendered_region;
     }
     return '';
