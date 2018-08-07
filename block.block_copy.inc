@@ -61,7 +61,7 @@ class BlockCopy extends Block {
             foreach ($block_positions as $position => $block_instances) {
               foreach ($block_instances as $key => $instance) {
                 // todo use custom title if set.
-                $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : ''; 
+                $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : '';
                 $instance_info = $layout_name . t(' layout in ') . $position . t(' region') . $key_string;
                 $blocks[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $all_block_info[$module][$block_delta]['info'] . ': ' . $instance_info;
               }
@@ -69,11 +69,11 @@ class BlockCopy extends Block {
           }
         }
       }
-
+      $default_source_block = isset($this->settings['source_block']) ? $this->settings['source_block'] : NULL;
       $form['source_block'] = array(
         '#type' => 'select',
         '#title' => t('Select block'),
-        '#default_value' => $this->settings['source_block'],
+        '#default_value' => $default_source_block,
         '#options' => $blocks,
       );
     }
@@ -106,9 +106,13 @@ class BlockCopy extends Block {
    * Get the block which is being copied.
    */
   function getParentBlock() {
-    list($module, $delta, $layout, $uuid) = explode(':', $this->settings['source_block']);
-    $parent_layout = layout_load($layout);
-    return $parent_layout->content[$uuid];
+    if (isset($this->settings['source_block'])) {
+      list($module, $delta, $layout, $uuid) = explode(':', $this->settings['source_block']);
+      $parent_layout = layout_load($layout);
+      if (isset($parent_layout->content[$uuid])) {
+        return $parent_layout->content[$uuid];
+      }
+    }
   }
 
   /**
@@ -116,6 +120,8 @@ class BlockCopy extends Block {
    */
   function getParentBlockInfo($block) {
     $all_block_info = layout_get_block_info();
-    return $all_block_info[$block->module][$block->delta];
+    if (isset($block->module)) {
+      return $all_block_info[$block->module][$block->delta];
+    }
   }
 }
