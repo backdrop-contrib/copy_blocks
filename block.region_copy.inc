@@ -10,12 +10,15 @@ class BlockRegionCopy extends Block {
    *  Sets title text on draggable block panel in Layout builder.
    */
   function getAdminTitle() {
-    // Get the source layout and region.
-    list($layout_name, $region) = explode(':', $this->settings['source_region']);
-    $layout = layout_load($layout_name);
-    $layout_info = layout_get_layout_template_info($layout->layout_template);
+    if (isset($this->settings['source_region'])) {
+      // Get the source layout and region.
+      list($layout_name, $region) = explode(':', $this->settings['source_region']);
+      $layout = layout_load($layout_name);
+      $layout_info = layout_get_layout_template_info($layout->layout_template);
 
-    return t('Copy of %region region from %layout', array('%region' => $layout_info['regions'][$region], '%layout' => $layout->title));
+      return t('Copy of %region region from %layout', array('%region' => $layout_info['regions'][$region], '%layout' => $layout->title));
+    }
+    return t('Region copy block');
   }
 
   /**
@@ -154,7 +157,7 @@ class BlockRegionCopy extends Block {
     $form['source_region'] = array(
       '#type' => 'select',
       '#title' => t('Select region'),
-      '#default_value' => $this->settings['source_region'],
+      '#default_value' => isset($this->settings['source_region']) ? $this->settings['source_region'] : '',
       '#options' => $regions,
     );
 
