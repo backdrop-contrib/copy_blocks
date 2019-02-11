@@ -18,9 +18,11 @@ class BlockCopy extends Block {
    *  Sets title text on draggable block panel in Layout builder.
    */
   function getAdminTitle() {
-    $parent_block = $this->getParentBlock();
-    $parent_block_info = $this->getParentBlockInfo($parent_block);
-    return t('Copy of %block', array('%block' => $parent_block_info['info']));
+    if ($parent_block = $this->getParentBlock()) {
+      $parent_block_info = $this->getParentBlockInfo($parent_block);
+      return t('Copy of %block', array('%block' => $parent_block_info['info']));
+    }
+    return t('Copy block');
   }
 
   /**
@@ -28,7 +30,7 @@ class BlockCopy extends Block {
    */
   function getTitle() {
     $parent_block = $this->getParentBlock();
-    return isset($parent_block->settings['title']) ? check_plain($this->parent_block['title']) : '';
+    return isset($parent_block->settings['title']) ? check_plain($parent_block->settings['title']) : '';
   }
 
   /**
@@ -53,17 +55,19 @@ class BlockCopy extends Block {
 
     $all_block_info = layout_get_block_info();
     if (!isset($this->settings['source_block'])) {
-      $blocks = array();
+      $block_options = array();
       $usage = layout_get_block_usage();
-      foreach ($usage as $module => $block) {
-        foreach ($block as $block_delta => $layout_blocks) {
+      foreach ($usage as $module => $blocks) {
+        foreach ($blocks as $block_delta => $layout_blocks) {
           foreach ($layout_blocks as $layout_name => $block_positions) {
             foreach ($block_positions as $position => $block_instances) {
               foreach ($block_instances as $key => $instance) {
                 // todo use custom title if set.
-                $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : ''; 
-                $instance_info = $layout_name . t(' layout in ') . $position . t(' region') . $key_string;
-                $blocks[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $all_block_info[$module][$block_delta]['info'] . ': ' . $instance_info;
+                if (isset($all_block_info[$module])) {
+                  $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : ''; 
+                  $instance_info = $layout_name . t(' layout in ') . $position . t(' region') . $key_string;
+                  $block_options[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $all_block_info[$module][$block_delta]['info'] . ': ' . $instance_info;
+                }
               }
             }
           }
@@ -73,8 +77,8 @@ class BlockCopy extends Block {
       $form['source_block'] = array(
         '#type' => 'select',
         '#title' => t('Select block'),
-        '#default_value' => $this->settings['source_block'],
-        '#options' => $blocks,
+        '#default_value' => '',
+        '#options' => $block_options,
       );
     }
     else {
@@ -106,9 +110,12 @@ class BlockCopy extends Block {
    * Get the block which is being copied.
    */
   function getParentBlock() {
-    list($module, $delta, $layout, $uuid) = explode(':', $this->settings['source_block']);
-    $parent_layout = layout_load($layout);
-    return $parent_layout->content[$uuid];
+    if (isset($this->settings['source_block'])) {
+      list($module, $delta, $layout, $uuid) = explode(':', $this->settings['source_block']);
+      $parent_layout = layout_load($layout);
+      return $parent_layout->content[$uuid];
+    }
+    return NULL;
   }
 
   /**
