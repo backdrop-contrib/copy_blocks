@@ -66,6 +66,7 @@ class BlockRegionCopy extends Block {
    */
   function renderBlock($layout, $block) {
     $output = '';
+    $block->prepare();
     if ($content = $block->getContent()) {
       $style = layout_get_style_info($block->style->plugin);
 
