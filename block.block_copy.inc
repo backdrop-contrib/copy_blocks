@@ -64,8 +64,8 @@ class BlockCopy extends Block {
               foreach ($block_instances as $key => $instance) {
                 // todo use custom title if set.
                 if (isset($all_block_info[$module])) {
-                  $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : ''; 
-                  $instance_info = $layout_name . t(' layout in ') . $position . t(' region') . $key_string;
+                  $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : '';
+                  $instance_info = '[layout = ' . $layout_name . t('] [region = ') . $position . t(']') . $key_string;
                   $block_options[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $all_block_info[$module][$block_delta]['info'] . ': ' . $instance_info;
                 }
               }

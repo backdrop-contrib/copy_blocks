@@ -148,7 +148,7 @@ class BlockRegionCopy extends Block {
           $region_name = $layout_info['regions'][$region];
           // Remove the the word "layout" from the end of layout names.
           $layout_title = str_ireplace(' layout', '', $layout->title);
-          $regions[$layout_name . ':' . $region] = t('!region_name region from !layout layout', array('!region_name' => $region_name, '!layout' => $layout_title));
+          $regions[$layout_name . ':' . $region] = t('[layout = !layout] !region_name', array('!region_name' => $region_name, '!layout' => $layout_title));
         }
       }
     }
