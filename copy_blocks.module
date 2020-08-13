@@ -32,3 +32,9 @@ function copy_blocks_autoload_info() {
     'BlockCopy' => 'block.block_copy.inc',
   );
 }
+/**
+ * AJAX callback to update the style settings within the block configure form.
+ */
+function copy_blocks_ajax_select($form, &$form_state) {
+  return $form['layout_blocks_wrapper'];
+}

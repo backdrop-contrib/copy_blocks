@@ -54,31 +54,36 @@ class BlockCopy extends Block {
     $form['title_display']['#access'] = FALSE;
 
     $all_block_info = layout_get_block_info();
+
     if (!isset($this->settings['source_block'])) {
+      $form_state['source_layout'] = 'default';
       $block_options = array();
-      $usage = layout_get_block_usage();
-      foreach ($usage as $module => $blocks) {
-        foreach ($blocks as $block_delta => $layout_blocks) {
-          foreach ($layout_blocks as $layout_name => $block_positions) {
-            foreach ($block_positions as $position => $block_instances) {
-              foreach ($block_instances as $key => $instance) {
-                // todo use custom title if set.
-                if (isset($all_block_info[$module])) {
-                  $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : ''; 
-                  $instance_info = $layout_name . t(' layout in ') . $position . t(' region') . $key_string;
-                  $block_options[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $all_block_info[$module][$block_delta]['info'] . ': ' . $instance_info;
-                }
-              }
-            }
-          }
-        }
+      $usage = layout_load_all();
+      foreach ($usage as $layout_name => $layout) {
+        $block_options[$layout_name] = $layout->title;
       }
 
-      $form['source_block'] = array(
+
+      $form['source_layout'] = array(
         '#type' => 'select',
         '#title' => t('Select block'),
-        '#default_value' => '',
+        '#default_value' => $form_state['source_layout'],
         '#options' => $block_options,
+        '#ajax' => array(
+          'wrapper' => 'layout_blocks_wrapper',
+          'callback' => 'copy_blocks_ajax_select'
+        ),
+      );
+      $form['layout_blocks_wrapper'] = array(
+        '#type' => 'container',
+        '#id' => 'layout_blocks_wrapper',
+      );
+      $form['layout_blocks_wrapper']['source_block'] = array(
+        '#type' => 'radios',
+        '#title' => t('Select block'),
+        '#parents' => array('source_block'),
+        '#default_value' => $form_state['source_block'],
+        '#options' => $this->layout_available_blocks($form_state),
       );
     }
     else {
@@ -93,6 +98,55 @@ class BlockCopy extends Block {
         '#markup' => t('This is a copy of !block_name block. Settings may be modified by !edit_link. This will load the parent block layout and will open the parent block\'s configuration form', array('!block_name' => $block_name, '!edit_link' => $edit_link)),
       );
     }
+  }
+
+  /**
+   * Submit handler to save the form settings.
+   */
+  function layout_available_blocks($form_state) {
+    if (!isset($form_state['values']['source_layout'])) {
+      $form_state['source_layout'] = 'default';
+    }
+    else {
+      $form_state['source_layout'] = $form_state['values']['source_layout'];
+    }
+    $blocks = array();
+    $all_block_info = layout_get_block_info();
+    $layout = layout_load($form_state['source_layout']);
+    $template_info = layout_get_layout_template_info($layout->layout_template);
+
+    foreach ($layout->positions as $position => $uuids) {
+      foreach ($uuids as $uuid) {
+        $block = $layout->content[$uuid];
+        $block->layout_title = $layout->title;
+        $blocks[$block->module][$block->delta][$layout->name][$position][] = $block;
+      }
+    }
+    foreach ($blocks as $module => $block) {
+      foreach ($block as $block_delta => $layout_blocks) {
+        foreach ($layout_blocks as $layout_name => $block_positions) {
+          if (isset($all_block_info[$module])) {
+            $block_options[$layout_name] = $layout_name;
+            if ($layout_name == $form_state['source_layout']) {
+              foreach ($block_positions as $position => $block_instances) {
+                foreach ($block_instances as $key => $instance) {
+                  $key_string = $key > 0 ? ': ' . t('instance !count', array('!count' => $instance + 1)) : '';
+                  $position = $template_info['regions'][$position];
+                  $block_title = $all_block_info[$module][$block_delta]['info'];
+                  // Some block names have 'block' on the end.
+                  $block_title = preg_replace('/ block$/', '', $block_title);
+
+                  $instance_info = t(' block in ') . $position . t(' region') . $key_string;
+                  $layout_available_blocks[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $block_title . ' ' . $instance_info;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return $layout_available_blocks;
   }
 
   /**
