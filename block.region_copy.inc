@@ -138,30 +138,71 @@ class BlockRegionCopy extends Block {
    */
   function form(&$form, &$form_state) {
     parent::form($form, $form_state);
+    $form['title_display']['#access'] = FALSE;
 
     $regions = array();
     $all_layouts = layout_load_all();
-    foreach ($all_layouts as $layout_name => $layout) {
-      $layout_info = layout_get_layout_template_info($layout->layout_template);
-      foreach ($layout->positions as $region => $position) {
-        if ($region != 'title') {
-          $region_name = $layout_info['regions'][$region];
-          // Remove the the word "layout" from the end of layout names.
-          $layout_title = str_ireplace(' layout', '', $layout->title);
-          $regions[$layout_name . ':' . $region] = t('!region_name region from !layout layout', array('!region_name' => $region_name, '!layout' => $layout_title));
-        }
+
+    $layout_name = 'default';
+    $form_state['source_region'] = 'default:header';
+    if (!empty($this->settings['source_region'])) {
+      list($layout_name, $region) = explode(':', $this->settings['source_region']);
+      $form_state['source_region'] = $this->settings['source_region'];
+    }
+    $form_state['source_layout'] = $layout_name;
+    $layout_options = array();
+    $usage = layout_load_all();
+    foreach ($usage as $layout_name => $layout) {
+      $layout_options[$layout_name] = $layout->title;
+    }
+
+    $form['source_layout'] = array(
+      '#type' => 'select',
+      '#title' => t('Select layout'),
+      '#default_value' => $form_state['source_layout'],
+      '#options' => $layout_options,
+      '#ajax' => array(
+        'wrapper' => 'layout_blocks_wrapper',
+        'callback' => 'copy_blocks_ajax_select'
+      ),
+    );
+
+      $form['layout_blocks_wrapper'] = array(
+        '#type' => 'container',
+        '#id' => 'layout_blocks_wrapper',
+      );
+
+    $form['layout_blocks_wrapper']['source_region'] = array(
+      '#type' => 'radios',
+      '#parents' => array('source_region'),
+      '#title' => t('Select region'),
+      '#default_value' => $form_state['source_region'],
+      '#options' => $this->layout_available_regions($form_state),
+    );
+  }
+
+
+  /**
+   * Submit handler to save the form settings.
+   */
+  function layout_available_regions($form_state) {
+    if (isset($form_state['values']['source_layout'])) {
+      $form_state['source_layout'] = $form_state['values']['source_layout'];
+    }
+
+    $layout = layout_load($form_state['source_layout']);
+    $template_info = layout_get_layout_template_info($layout->layout_template);
+
+    foreach ($layout->positions as $region => $position) {
+      if ($region != 'title') {
+        $region_name = $template_info['regions'][$region];
+        // Remove the the word "layout" from the end of layout names.
+        $layout_title = str_ireplace(' layout', '', $layout->title);
+        $regions[$form_state['source_layout'] . ':' . $region] = $region_name;
       }
     }
 
-    $form['title_display']['#access'] = FALSE;
-
-    $form['source_region'] = array(
-      '#type' => 'select',
-      '#title' => t('Select region'),
-      '#default_value' => isset($this->settings['source_region']) ? $this->settings['source_region'] : '',
-      '#options' => $regions,
-    );
-
+    return $regions;
   }
 
   /**

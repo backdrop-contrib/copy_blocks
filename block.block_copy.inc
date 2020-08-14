@@ -57,18 +57,18 @@ class BlockCopy extends Block {
 
     if (!isset($this->settings['source_block'])) {
       $form_state['source_layout'] = 'default';
-      $block_options = array();
+      $layout_options = array();
       $usage = layout_load_all();
       foreach ($usage as $layout_name => $layout) {
-        $block_options[$layout_name] = $layout->title;
+        $layout_options[$layout_name] = $layout->title;
       }
 
 
       $form['source_layout'] = array(
         '#type' => 'select',
-        '#title' => t('Select block'),
+        '#title' => t('Select layout'),
         '#default_value' => $form_state['source_layout'],
-        '#options' => $block_options,
+        '#options' => $layout_options,
         '#ajax' => array(
           'wrapper' => 'layout_blocks_wrapper',
           'callback' => 'copy_blocks_ajax_select'
@@ -126,7 +126,6 @@ class BlockCopy extends Block {
       foreach ($block as $block_delta => $layout_blocks) {
         foreach ($layout_blocks as $layout_name => $block_positions) {
           if (isset($all_block_info[$module])) {
-            $block_options[$layout_name] = $layout_name;
             if ($layout_name == $form_state['source_layout']) {
               foreach ($block_positions as $position => $block_instances) {
                 foreach ($block_instances as $key => $instance) {
