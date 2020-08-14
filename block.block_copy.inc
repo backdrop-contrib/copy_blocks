@@ -18,9 +18,12 @@ class BlockCopy extends Block {
    *  Sets title text on draggable block panel in Layout builder.
    */
   function getAdminTitle() {
-    if ($parent_block = $this->getParentBlock()) {
+    if (isset($this->settings['source_block'])) {
+      list($module, $delta, $layout, $uuid) = explode(':', $this->settings['source_block']);
+      $parent_layout = layout_load($layout);
+      $parent_block = $parent_layout->content[$uuid];
       $parent_block_info = $this->getParentBlockInfo($parent_block);
-      return t('Copy of %block', array('%block' => $parent_block_info['info']));
+      return t('Copy of %block from %parent_layout', array('%block' => $parent_block_info['info'], '%parent_layout' => $parent_layout->title));
     }
     return t('Copy block');
   }
