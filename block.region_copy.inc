@@ -144,10 +144,13 @@ class BlockRegionCopy extends Block {
     $all_layouts = layout_load_all();
 
     $layout_name = 'default';
-    $form_state['source_region'] = 'default:header';
+    $region = 'default:header';
     if (!empty($this->settings['source_region'])) {
-      list($layout_name, $region) = explode(':', $this->settings['source_region']);
-      $form_state['source_region'] = $this->settings['source_region'];
+      list($layout_name, ) = explode(':', $this->settings['source_region']);
+      $region = $this->settings['source_region'];
+    }
+    if (!empty($form_state['values']['source_layout'])) {
+      $region = '';
     }
     $form_state['source_layout'] = $layout_name;
     $layout_options = array();
@@ -176,7 +179,7 @@ class BlockRegionCopy extends Block {
       '#type' => 'radios',
       '#parents' => array('source_region'),
       '#title' => t('Select region'),
-      '#default_value' => $form_state['source_region'],
+      '#default_value' => $region,
       '#options' => $this->layout_available_regions($form_state),
     );
   }
