@@ -52,6 +52,7 @@ class BlockCopy extends Block {
    *  Builds the block's configuration form.
    */
   function form(&$form, &$form_state) {
+    backdrop_add_css(backdrop_get_path('module', 'copy_blocks') . '/css/copy-blocks.css');
     parent::form($form, $form_state);
     // Hide the title display.
     $form['title_display']['#access'] = FALSE;
@@ -69,7 +70,7 @@ class BlockCopy extends Block {
 
       $form['source_layout'] = array(
         '#type' => 'select',
-        '#title' => t('Select layout'),
+        '#title' => t('Copy block from this layout'),
         '#default_value' => $form_state['source_layout'],
         '#options' => $layout_options,
         '#ajax' => array(
@@ -83,7 +84,7 @@ class BlockCopy extends Block {
       );
       $form['layout_blocks_wrapper']['source_block'] = array(
         '#type' => 'radios',
-        '#title' => t('Select block'),
+        '#title' => t('Copy this block'),
         '#parents' => array('source_block'),
         '#default_value' => $form_state['source_block'],
         '#options' => $this->layout_available_blocks($form_state),
@@ -138,8 +139,8 @@ class BlockCopy extends Block {
                   // Some block names have 'block' on the end.
                   $block_title = preg_replace('/ block$/', '', $block_title);
 
-                  $instance_info = t(' block in ') . $position . t(' region') . $key_string;
-                  $layout_available_blocks[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = $block_title . ' ' . $instance_info;
+                  $instance_info = '<span class="copy-blocks-text">' . t(' block from ') . '</span>' . $position . '<span class="copy-blocks-text">' . t(' region') . '</span>' . $key_string;
+                  $layout_available_blocks[$module . ':' . $block_delta . ':' . $layout_name . ':' . $instance->uuid] = '<strong>' . $block_title . '</strong>' . ' ' . $instance_info;
                 }
               }
             }

@@ -161,7 +161,7 @@ class BlockRegionCopy extends Block {
 
     $form['source_layout'] = array(
       '#type' => 'select',
-      '#title' => t('Select layout'),
+      '#title' => t('Copy region from this layout'),
       '#default_value' => $form_state['source_layout'],
       '#options' => $layout_options,
       '#ajax' => array(
@@ -178,7 +178,7 @@ class BlockRegionCopy extends Block {
     $form['layout_blocks_wrapper']['source_region'] = array(
       '#type' => 'radios',
       '#parents' => array('source_region'),
-      '#title' => t('Select region'),
+      '#title' => t('Copy this region'),
       '#default_value' => $region,
       '#options' => $this->layout_available_regions($form_state),
     );
