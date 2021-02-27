@@ -3,3 +3,6 @@ description = Allows adding layout blocks which are actually copies of regions o
 package = Blocks
 type = module
 backdrop = 1.x
+tags[] = layout
+tags[] = blocks
+maintainers[] = docwilmot
