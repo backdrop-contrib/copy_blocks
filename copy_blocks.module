@@ -10,12 +10,12 @@
 function copy_blocks_block_info() {
   $blocks = array();
   $blocks['region_copy'] = array(
-    'info' => t('Region copy block'),
-    'description' => t('Provide a block which displays the blocks from a chosen region.'),
+    'info' => t('Copy region'),
+    'description' => t('Copies an entire region and all the regions blocks into a block.'),
     'class' => 'BlockRegionCopy',
   );
   $blocks['block_copy'] = array(
-    'info' => t('Block copy block'),
+    'info' => t('Copy block'),
     'description' => t('Creates a copy of an existing block.'),
     'class' => 'BlockCopy',
   );
