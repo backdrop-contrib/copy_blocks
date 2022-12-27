@@ -211,6 +211,18 @@ class BlockRegionCopy extends Block {
   /**
    * Submit handler to save the form settings.
    */
+  function formValidate($form, &$form_state) {
+    parent::formValidate($form, $form_state);
+
+    if ($form_state['values']['source_region'] == $form_state['layout']->name . ':' . $form_state['values']['region']) {
+      form_set_error('source_region', t('Block cannot copy itself.'));
+    }
+
+  }
+
+  /**
+   * Submit handler to save the form settings.
+   */
   function formSubmit($form, &$form_state) {
     parent::formSubmit($form, $form_state);
 
