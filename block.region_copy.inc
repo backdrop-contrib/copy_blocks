@@ -182,6 +182,12 @@ class BlockRegionCopy extends Block {
       '#default_value' => $region,
       '#options' => $this->layout_available_regions($form_state),
     );
+    $form['plain_region'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Exclude outer HTML wrapper'),
+      '#default_value' => isset($this->settings['plain_region']) ? $this->settings['plain_region'] : FALSE,
+      '#title' => t('If checked, only the source blocks will be rendered, without wrapper elements.'),
+    );
   }
 
 
@@ -227,5 +233,6 @@ class BlockRegionCopy extends Block {
     parent::formSubmit($form, $form_state);
 
     $this->settings['source_region'] = $form_state['values']['source_region'];
+    $this->settings['plain_region'] = $form_state['values']['plain_region'];
   }
 }
