@@ -209,7 +209,7 @@ class BlockRegionCopy extends Block {
   }
 
   /**
-   * Submit handler to save the form settings.
+   * Validation handler to prevent blocks from copying themselves.
    */
   function formValidate($form, &$form_state) {
     parent::formValidate($form, $form_state);
