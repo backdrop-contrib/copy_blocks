@@ -66,8 +66,23 @@ class BlockRegionCopy extends Block {
    */
   function renderBlock($layout, $block) {
     $output = '';
+    // Assign contexts to block.
+    $layout_contexts = $layout->getContexts();
+
+    $has_contexts = TRUE;
+    $required_contexts = $block->getRequiredContexts();
+    if ($required_contexts) {
+      $has_contexts = $layout->hasContexts($required_contexts);
+      if ($has_contexts) {
+        $block->setContexts($layout_contexts);
+      }
+    }
+    elseif ($block->conditions) {
+      $block->setContexts($layout_contexts);
+    }
+
     $block->prepare();
-    if ($block->checkAccess() && $content = $block->getContent()) {
+    if ($has_contexts && $block->checkAccess() && $content = $block->getContent()) {
       $style = layout_get_style_info($block->style->plugin);
 
       // Ensure block content is a renderable array for contextual links.
