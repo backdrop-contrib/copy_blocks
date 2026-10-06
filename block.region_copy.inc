@@ -13,10 +13,29 @@ class BlockRegionCopy extends Block {
     if (isset($this->settings['source_region'])) {
       // Get the source layout and region.
       list($layout_name, $region) = explode(':', $this->settings['source_region']);
+      $status = '';
+      $region_title = $region;
+      $layout_title = $layout_name;
       $layout = layout_load($layout_name);
-      $layout_info = layout_get_layout_template_info($layout->layout_template);
+      if ($layout) {
+        $layout_title = $layout->title;
+        $layout_info = layout_get_layout_template_info($layout->layout_template);
+        if (isset($layout_info['regions'][$region])) {
+          $region_title = $layout_info['regions'][$region];
+        }
+        else {
+          $status = ' ' . t('(region not found)');
+        }
+      }
+      else {
+        $status = ' ' . t('(layout not found)');
+      }
 
-      return t('Copy of %region region from %layout', array('%region' => $layout_info['regions'][$region], '%layout' => $layout->title));
+      return t('Copy of %region region from %layout @status', array(
+        '%region' => $region_title,
+        '%layout' => $layout_title,
+        '@status' => $status,
+      ));
     }
     return t('Region copy block');
   }
@@ -25,7 +44,7 @@ class BlockRegionCopy extends Block {
    *  Sets block subject on block view.
    */
   function getTitle() {
-    // region blocks shouldn't have titles.
+    // Region blocks shouldn't have titles.
     return '';
   }
 
@@ -142,7 +161,7 @@ class BlockRegionCopy extends Block {
     $tag = isset($style_settings['element']) ? $style_settings['element'] : '';
     $classes = array();
     if (isset($style_settings['classes'])) {
-      $classes =  explode(' ', $style_settings['classes']);
+      $classes = explode(' ', $style_settings['classes']);
     }
 
     return theme('layout_region_inner', array('blocks' => $blocks, 'tag' => $tag, 'classes' => $classes));
@@ -181,7 +200,7 @@ class BlockRegionCopy extends Block {
       '#options' => $layout_options,
       '#ajax' => array(
         'wrapper' => 'layout_blocks_wrapper',
-        'callback' => 'copy_blocks_ajax_select'
+        'callback' => 'copy_blocks_ajax_select',
       ),
     );
 
